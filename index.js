@@ -3,23 +3,20 @@ const axios = require('axios').default;
 const qs = require('querystring');
 const fs = require('fs');
 
-var accountsArray = []
-var transactionsArray = []
+let accountsArray = []
+let transactionsArray = []
 
 fetchRefreshToken()
     .then(refreshTokenData => {
-		console.log(refreshTokenData.refresh_token)
 		fetchAccessToken(refreshTokenData.refresh_token)
 			.then(accessTokenData => {
-				console.log(accessTokenData.access_token)
 				fetchAccounts(accessTokenData.access_token)
-					.then(accountsData => {
-
-					})
 			})
 			.catch(err => console.log(err))
     })
 	.catch(err => console.log(err))
+
+
 	
 
 async function fetchRefreshToken() {
@@ -83,7 +80,6 @@ async function fetchAccounts(accessToken, accountsPage = null) {
 			accountsArray.forEach(account => {
 				fetchTransactions(accessToken, account)
 			})
-			///
 		}			
 	})
 	.catch(function (error) {
@@ -110,17 +106,15 @@ async function fetchTransactions(accessToken, account, transactionsPage = null) 
 
 			account.transactions.push(fetchedTransaction)			
 		})
+		var json = JSON.stringify(account, null, 4)
 		if(transactionsResponse.data.link.next) {
 			fetchTransactions(accessToken, account, transactionsResponse.data.link.next)
 		} else if (transactionsResponse.data.link.next == null ) {
 			transactionsArray.push(account)
+			console.log(json)
 		}
-
-		var json = JSON.stringify(transactionsArray, null, 4)
-		console.log(json)
-
 	})
 	.catch(function (error) {
-		console.log(error);
+		//console.log(error);
 	});	
 }
